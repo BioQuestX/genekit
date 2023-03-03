@@ -40,7 +40,11 @@ def unique_exprs(frame, reductions=np.median):
     return frame.drop(columns='Ref')
 
 
-def count2tpm(frame, geneid='Ensembl', species="Human"):
+def countto(frame, towhat="tpm", geneid='Ensembl', species="Human"):
+    '''
+    towhat: tpm(default), fpkm, cpm
+    return: a dataframe
+    '''
     if species == "Human":
         file_path = "h38_gene_info_v43.csv.gz"
     if species == "Mouse":
@@ -53,8 +57,14 @@ def count2tpm(frame, geneid='Ensembl', species="Human"):
     _df = pd.merge(annot, frame, left_index=True, right_index=True)
     nm = analys.norm()
     nm.tpm(df=_df, gl='Length')
-    return nm.tpm_norm
-
+    nm.rpkm(df=_df, gl='Length')
+    nm.cpm(df=_df)
+    if towhat=="tpm":
+        return nm.tpm_norm
+    if towhat=="fpkm":
+        return nm.rpkm_norm
+    if towhat=="cpm":
+        return nm.cpm_norm.drop(columns="Length")
 
 def get_TCGA_mRNA(arrow, dtype='tpm', label="01A", gene_id='gene_name', gene_type=None, barcode_length=16):
     _df = pd.read_feather(arrow)
