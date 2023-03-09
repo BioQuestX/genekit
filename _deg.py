@@ -1,6 +1,6 @@
 import pandas as pd
-from pydeseq2.DeseqDataSet import DeseqDataSet
-from pydeseq2.DeseqStats import DeseqStats
+from pydeseq2.dds import DeseqDataSet
+from pydeseq2.ds import DeseqStats
 
 def deseq(
         count_df: pd.DataFrame,
