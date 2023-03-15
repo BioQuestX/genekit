@@ -1,4 +1,14 @@
-customed Python scripts for Bioinformatics
+Python functions for Bioinformatics
+
+## intall dependency
+
+```bash
+pip install pydeseq2
+micromamba install -y -c bioconda bioinfokit
+micromamba install -y -c conda-forge matplotlib-venn adjustText tabulate textwrap3
+```
+
+## usage
 
 ```python
 import genekit as gk
