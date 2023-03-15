@@ -3,9 +3,9 @@ Python functions for Bioinformatics
 ## intall dependency
 
 ```bash
+conda install -y -c conda-forge numpy matplotlib seaborn pandas matplotlib-venn adjustText tabulate textwrap3
 pip install pydeseq2
-micromamba install -y -c bioconda bioinfokit
-micromamba install -y -c conda-forge matplotlib-venn adjustText tabulate textwrap3
+conda install -y -c bioconda bioinfokit
 ```
 
 ## usage
