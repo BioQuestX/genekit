@@ -1,6 +1,8 @@
+import numpy as np
 import pandas as pd
 from pydeseq2.dds import DeseqDataSet
 from pydeseq2.ds import DeseqStats
+import bioquest as bq
 
 def deseq(
         count_df: pd.DataFrame,
@@ -31,28 +33,33 @@ def deseq(
 
 def deg_siglabel(
         df: pd.DataFrame, 
-        lfc='log2FC', 
+        lfc='log2FC',
+        padj:str = None,
+        pvalue:str = None,
         lfc_thr=(.585, .585),
-        pv='pvalue',
         pv_thr=(0.05, 0.05),
         siglabel=('significant down', 'not significant', 'significant up')
         ) -> pd.DataFrame:
     """
     label genes for significant up/down or not significant
+    lfc
+    pv
+    padj
     """
-    df.loc[(df[lfc] >= lfc_thr[0]) & (df[pv] < pv_thr[0]),
-           'Change'] = siglabel[2]  # upregulated
+    pv = pvalue if pvalue else padj
+    # upregulated
+    lg_up = np.logical_and(df[lfc] >= lfc_thr[1],df[pv] < pv_thr[1])
+    df.loc[lg_up,'Change'] = siglabel[2] 
     # downregulated
-    df.loc[(df[lfc] <= -lfc_thr[1]) &
-           (df[pv] < pv_thr[1]), 'Change'] = siglabel[0]
+    lg_down = np.logical_and(df[lfc] <= -lfc_thr[0],df[pv] < pv_thr[0])
+    df.loc[lg_down, 'Change'] = siglabel[0]
     df.fillna(value={'Change': siglabel[1]}, inplace=True)
-    sig_df = df.loc[df.Change != siglabel[1], :]
-    n_degs = sig_df.shape[0]
-    print(f'All degs: {n_degs}')
+    # return df
+    print(f'All degs: {df.loc[df.Change != siglabel[1], :].shape[0]}')
     print(
-        f'significant up: {sig_df.loc[df.Change == siglabel[2],:].shape[0]}')
+        f'significant up: {df.loc[df.Change == siglabel[2],:].shape[0]}')
     print(
-        f'significant down: {sig_df.loc[df.Change == siglabel[0],:].shape[0]}')
+        f'significant down: {df.loc[df.Change == siglabel[0],:].shape[0]}')
     return df
 
 
@@ -61,9 +68,8 @@ def deg_filter(
         lfc :str='log2FC',
         top_n=None,
         siglabel=('significant down', 'not significant', 'significant up'),
-        filter_label='significant down'
+        filter_label=['significant down']
         ) -> pd.DataFrame:
-    sig_df = df.loc[df.Change != siglabel[1], :]
     if top_n:
         _df = df.sort_values(by=[lfc])
         nrow = df.shape[0]
@@ -71,4 +77,4 @@ def deg_filter(
             list(range(nrow-top_n, nrow))
         return _df.iloc[dfslice, :]
     else:
-        return sig_df.loc[df.Change == filter_label, :]
+        return bq.tl.subset(df,{"Change":filter_label})
