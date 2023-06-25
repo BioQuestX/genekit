@@ -1,7 +1,5 @@
 import numpy as np
 import pandas as pd
-from pydeseq2.dds import DeseqDataSet
-from pydeseq2.ds import DeseqStats
 import bioquest as bq
 
 def deseq(
@@ -12,6 +10,8 @@ def deseq(
     """
     differential expression analysis (DEA) with bulk RNA-seq data
     """
+    from pydeseq2.dds import DeseqDataSet
+    from pydeseq2.ds import DeseqStats
     count_df.index.name = None
     clinical_df.index.name = None
     # 构建DeseqDataSet 对象
@@ -26,6 +26,5 @@ def deseq(
     # 离散度和log fold-change评估.
     dds.deseq2()
     # 差异表达统计检验分析
-    stat_res = DeseqStats(dds, alpha=0.05, cooks_filter=True,
-                          independent_filter=True, n_cpus=n_jobs)
+    stat_res = DeseqStats(dds, alpha=0.05, cooks_filter=True, independent_filter=True, n_cpus=n_jobs)
     return stat_res.summary().rename(columns={"log2FoldChange": "logFC"})
